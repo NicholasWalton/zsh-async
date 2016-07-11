@@ -109,6 +109,13 @@ _async_worker() {
 				trap - TERM
 				continue
 				;;
+			_exec)
+				# Remove _exec
+				shift cmd
+				# Run command but permit no output, it could conflict with jobs.
+				$cmd &>/dev/null
+				continue
+				;;
 		esac
 
 		# If worker should perform unique jobs
@@ -224,6 +231,13 @@ async_job() {
 
 	local worker=$1; shift
 	zpty -w $worker $@
+}
+
+async_exec() {
+	setopt localoptions noshwordsplit
+
+	local worker=$1; shift
+	async_job $worker _exec $@
 }
 
 # This function traps notification signals and calls all registered callbacks
